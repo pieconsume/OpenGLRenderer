@@ -11,11 +11,11 @@
  extern void*  glfwCreateWindow(int width, int height, void* title, void* monitor, void* share);
  extern void   glfwMakeContextCurrent(void* window);
  extern void*  glfwSetWindowSizeCallback(void* window, void* callback);
+ extern void*  glfwSetKeyCallback(void* window, void* callback);
  extern void   glfwSwapBuffers(void* window);
  extern void   glfwPollEvents(void);
  extern int    glfwWindowShouldClose(void* window);
  extern int    glfwGetKey(void* window, uint key);
- extern void*  glfwSetKeyCallback(void* window, void* callback);
  extern void   glGenVertexArrays(uint count, void* arrays);
  extern void   glGenBuffers(uint count, void* buffers);
  extern void   glBindVertexArray(uint array);
