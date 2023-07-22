@@ -1,3 +1,5 @@
+; See https://github.com/pieconsume/SmallExecutables/blob/main/ELF64Link_Comment.asm for header info
+
 defs:
  [BITS 64]
  [DEFAULT REL]
@@ -48,7 +50,7 @@ defs:
  %define res                       $$+0x012C ; 8
  %define loc                       $$+0x0134 ; 12
  %define cam                       $$+0x0140 ; 8
-elf:
+elf: 
  dd 0x464C457F
  db 0x02, 0x01, 0x01, 0x00, 0x00, 0, 0, 0, 0, 0, 0, 0
  dw 0x0003, 0x003E, 0x0001, 0x0000
@@ -187,7 +189,7 @@ dynstr:
  fglunivc3 db 'glUniform3fv', 0
  dynstr.end:
 
-; Todo - Add error reporting for shaders. Add glError check in preloop. Add comments explaining obtuse code.
+; Todo - Add error reporting for shaders. Add glError check in preloop. Add comments
 wininit:
  call [glfwInit]
  mov edi, 0x22002 ; Context major

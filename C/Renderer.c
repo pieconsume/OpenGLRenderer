@@ -53,18 +53,18 @@ void  resize(), keypress(), done();
 void* window;
 uint  objs[2], vao, program, unires, uniloc, unicam;
 float loc[3], cam[2];
-float vertices[24] =
-{ 
+float vertices[24] = //Vertices of a cube
+{
  -0.5, -0.5, -0.5, 
  -0.5, -0.5, +0.5, 
  +0.5, -0.5, +0.5, 
  +0.5, -0.5, -0.5, 
  -0.5, +0.5, -0.5, 
- -0.5, +0.5, +0.5, 
+ -0.5, +0.5, +0.5,
  +0.5, +0.5, +0.5, 
  +0.5, +0.5, -0.5
 };
-char  elements[24] =
+char  elements[24] = //Elements for a wireframe cube with GL_LINES
 {
  0, 1, 
  1, 2, 
@@ -97,7 +97,7 @@ short keys[] =
 char  flags[] = { 0b101, 0b00000, 0b01100, 0b11000, 0b10100, 0b1010, 0b1110, 0b0010, 0b0110, 0b001 };
 int main()
 {
- //GLFW initialization
+ //GLFW init
   glfwInit();                                //Required before anything else
   glfwWindowHint(0x22002, 4);                //0x22002 is GL_VERSION_MAJOR
   glfwWindowHint(0x22003, 5);                //0x22003 is GL_VERSION_MINOR
@@ -105,12 +105,12 @@ int main()
    1600,         //Width
    900,          //Height
    "Scumpert!!", //Name
-   0,            //Monitor, 0 is default
-   0);           //Share, can be ignored here
-  glfwMakeContextCurrent(window);            //Make context current
-  glfwSetWindowSizeCallback(window, resize); //Set callbacks
+   0,            //Monitor
+   0);           //Share
+  glfwMakeContextCurrent(window);
+  glfwSetWindowSizeCallback(window, resize);
   glfwSetKeyCallback(window, keypress);
- //Buffer initialization
+ //Buffer init
   glGenVertexArrays(1, &vao);
   glGenBuffers(2, objs);
   glBindVertexArray(vao);
@@ -118,12 +118,12 @@ int main()
   glBufferData(0x8892, 96, vertices, 0x88E4);     //0x88E4 is STATIC_DRAW
   glBindBuffer(0x8893, objs[1]);                  //0x8893 is GL_ELEMENT_BUFFER. objs[1] is the element buffer object
   glBufferData(0x8893, 24, elements, 0x88E4);
-  glVertexAttribPointer(0, 3, 0x1406, 0, 12, 0);  //Index 0, 3 elements, floats, don't normalize, entry size of 12 bytes, offset of 0
-  glEnableVertexAttribArray(0);                   //Enable index 0
- //Shader initialization
+  glVertexAttribPointer(0, 3, 0x1406, 0, 12, 0);  //Index 0, 3 elements, 0x1406 is float, don't normalize, entry size of 12 bytes, offset of 0
+  glEnableVertexAttribArray(0);
+ //Shader init
   int result, size;
   uint vertshader = glCreateShader(0x8B31);         //0x8B31 is GL_VERTEX_SHADER
-  glShaderSource(vertshader, 1, &vertshaderstr, 0); //shader, line count, lines, linelengths
+  glShaderSource(vertshader, 1, &vertshaderstr, 0); //Shader, line count, lines, linelengths
   glCompileShader(vertshader);
   glGetShaderiv(vertshader, 0x8B81, &result);       //0x8B81 is GL_COMPILE_STATUS
   if(result == 0)
@@ -171,7 +171,7 @@ int main()
   {
    if(glfwGetKey(window, keys[i]))
    {  
-    if((flags[i]&0b11) == 0) //0b00 is wasd for camera movement
+    if((flags[i]&0b11) == 0)      //0b00 is wasd for camera movement
     {
      float negpos0 = -0.001;
      float negpos1 = -0.001;
@@ -187,7 +187,7 @@ int main()
      if(keys[i] == 340) { loc[1] -= 0.001; } else { loc[1] += 0.001; }
      glUniform3fv(uniloc, 1, loc);
     }
-    else //0b10 is left/right/up/down for camera angles
+    else                          //0b10 is left/right/up/down for camera angles
     {
      float negpos = +0.001;
      if((flags[i]&0b0100) == 0) { negpos = -0.001; }                             //Negpos flag
