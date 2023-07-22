@@ -32,7 +32,7 @@ module callbacks ! Not sure how to include this in the main program section. For
   subroutine keypress(window,key,scancode,action,mods) bind(c)
    integer(c_int),value,intent(in)::key,scancode,action,mods
    type(c_ptr),value,intent(in)::window
-   if (key==256) then
+   if (key==256) then ! 256 is escape
     call done
     end if
    end subroutine keypress
@@ -263,70 +263,77 @@ program renderer
  character(len=4),target::resstr='res'//char(0),locstr='loc'//char(0),camstr='cam'//char(0)
  vertstrptr=c_loc(vertstr)
  fragstrptr=c_loc(fragstr)
- result=glfwInit()
- call glfwWindowHint(int(z'22002'),4)
- call glfwWindowHint(int(z'22003'),5)
- call glfwWindowHint(int(z'22006'),1);
- call glfwWindowHint(int(z'22008'),int(z'32001'));
- window=glfwCreateWindow(1600,900,c_loc(scumpert),c_null_ptr,c_null_ptr)
- call glfwMakeContextCurrent(window)
- oldfunc=glfwSetWindowSizeCallback(window,c_funloc(resize))
- oldfunc=glfwSetKeyCallback(window,c_funloc(keypress))
- call glGenVertexArrays(1,c_loc(vao))
- call glGenBuffers(2,c_loc(bufobjs))
- call glBindVertexArray(vao);
- call glBindBuffer(int(z'8892'),bufobjs(0))
- call glBufferData(int(z'8892'),96,c_loc(vertices),int(z'88E4'))
- call glBindBuffer(int(z'8893'),bufobjs(1))
- call glBufferData(int(z'8893'),24,c_loc(elements),int(z'88E4'))
- call glVertexAttribPointer(0,3,int(z'1406'),0,12,0)
- call glEnableVertexAttribArray(0)
- vert=glCreateShader(int(z'8B31'))
- call glShaderSource(vert,1,c_loc(vertstrptr),0)
- call glCompileShader(vert)
- call glGetShaderiv(vert,int(z'8B81'),c_loc(result))
- if(result==0) then
-  call glGetShaderInfoLog(vert,int(z'FF'),c_loc(size),c_loc(buffer))
-  size=write(1,c_loc(buffer),size)
-  call glDeleteShader(vert)
-  call done
-  end if
- frag=glCreateShader(int(z'8B30'))
- call glShaderSource(frag,1,c_loc(fragstrptr),0)
- call glCompileShader(frag)
- call glGetShaderiv(frag,int(z'8B81'),c_loc(result))
- if(result==0) then
-  call glGetShaderInfoLog(frag,int(z'FF'),c_loc(size),c_loc(buffer))
-  size=write(1,c_loc(buffer),size)
+ !GLFW init
+  result=glfwInit()                    !Must be called before anything else
+  call glfwWindowHint(int(z'22002'),4) !0x22002 is GL_CONTEXT_MAJOR
+  call glfwWindowHint(int(z'22003'),5) !0x22003 is GL_CONTEXT_MINOR
+  window=glfwCreateWindow(&
+   1600,&            !Width
+   900,&             !Height
+   c_loc(scumpert),& !Name
+   c_null_ptr,&      !Monitor 
+   c_null_ptr)       !Share
+  call glfwMakeContextCurrent(window)
+  oldfunc=glfwSetWindowSizeCallback(window,c_funloc(resize))
+  oldfunc=glfwSetKeyCallback(window,c_funloc(keypress))
+ !Buffer init
+  call glGenVertexArrays(1,c_loc(vao))
+  call glGenBuffers(2,c_loc(bufobjs))
+  call glBindVertexArray(vao);
+  call glBindBuffer(int(z'8892'),bufobjs(0))                      !0x8892 is GL_ARRAY_BUFFER. bufobjs(0) is the vertex buffer object
+  call glBufferData(int(z'8892'),96,c_loc(vertices),int(z'88E4')) !0x88E4 is GL_STATIC_DRAW
+  call glBindBuffer(int(z'8893'),bufobjs(1))                      !0x8893 is GL_ELEMENT_BUFFER. bufobjs(1) is the element buffer object
+  call glBufferData(int(z'8893'),24,c_loc(elements),int(z'88E4'))
+  call glVertexAttribPointer(0,3,int(z'1406'),0,12,0)             !Index 0, 3 elements, 0x1406 is float, don't normalize, entry size of 12 bytes, offset of 0
+  call glEnableVertexAttribArray(0)
+ !Shader init
+  vert=glCreateShader(int(z'8B31'))                       !0x8B31 is GL_VERTEX_SHADER
+  call glShaderSource(vert,1,c_loc(vertstrptr),0)
+  call glCompileShader(vert)
+  call glGetShaderiv(vert,int(z'8B81'),c_loc(result))     !0x8B81 is GL_COMPILE_STATUS
+  if(result==0) then
+   call glGetShaderInfoLog(vert,int(z'FF'),c_loc(size),c_loc(buffer))
+   size=write(1,c_loc(buffer),size)
+   call glDeleteShader(vert)
+   call done
+   end if
+  frag=glCreateShader(int(z'8B30'))                       !0x8B30 is GL_FRAGMENT_SHADER
+  call glShaderSource(frag,1,c_loc(fragstrptr),0)
+  call glCompileShader(frag)
+  call glGetShaderiv(frag,int(z'8B81'),c_loc(result))
+  if(result==0) then
+   call glGetShaderInfoLog(frag,int(z'FF'),c_loc(size),c_loc(buffer))
+   size=write(1,c_loc(buffer),size)
+   call glDeleteShader(vert)
+   call glDeleteShader(frag)
+   call done
+   end if
+  program=glCreateProgram()
+  call glAttachShader(program,vert)
+  call glAttachShader(program,frag)
+  call glLinkProgram(program)
+  call glGetProgramiv(program,int(z'8B82'),c_loc(result)) !0x8B82 is GL_LINK_STATUS
+  if(result==0) then
+   call glGetProgramInfoLog(program,int(z'FF'),c_loc(size),c_loc(buffer))
+   size=write(1,c_loc(buffer),size)
+   call glDeleteShader(vert)
+   call glDeleteShader(frag)
+   call glDeleteProgram(program)
+   call done
+   end if
+  call glUseProgram(program)
+  call glDetachShader(program,vert)
+  call glDetachShader(program,frag)
   call glDeleteShader(vert)
   call glDeleteShader(frag)
-  call done
-  end if
- program=glCreateProgram()
- call glAttachShader(program,vert)
- call glAttachShader(program,frag)
- call glLinkProgram(program)
- call glGetProgramiv(program,int(z'8B82'),c_loc(result))
- if(result==0) then
-  call glGetProgramInfoLog(program,int(z'FF'),c_loc(size),c_loc(buffer))
-  size=write(1,c_loc(buffer),size)
-  call glDeleteShader(vert)
-  call glDeleteShader(frag)
-  call glDeleteProgram(program)
-  call done
-  end if
- call glUseProgram(program)
- call glDetachShader(program,vert)
- call glDetachShader(program,frag)
- call glDeleteShader(vert)
- call glDeleteShader(frag)
- unires=glGetUniformLocation(program,c_loc(resstr))
- uniloc=glGetUniformLocation(program,c_loc(locstr))
- unicam=glGetUniformLocation(program,c_loc(camstr))
+  unires=glGetUniformLocation(program,c_loc(resstr))
+  uniloc=glGetUniformLocation(program,c_loc(locstr))
+  unicam=glGetUniformLocation(program,c_loc(camstr))
+ !Mainloop
  do while(glfwWindowShouldClose(window)==0)
   do i=0,9
    if(glfwGetKey(window,keys(i))==1) then
-    if(iand(flags(i),b'11')==0) then
+    if(iand(flags(i),b'11')==0) then      !0b00 is wasd for camera movement
      np0=-0.001
      np1=-0.001
      if(iand(flags(i),b'00100')==0) then
@@ -343,14 +350,14 @@ program renderer
       loc(2)=loc(2)+cos(cam(1))*np1
       end if
      call glUniform3fv(uniloc,1,c_loc(loc))
-    else if(iand(flags(i),b'10')==0) then
+    else if(iand(flags(i),b'10')==0) then !0b01 is shift/space for up/down
      if(keys(i)==340) then
       loc(1)=loc(1)-0.001
      else
       loc(1)=loc(1)+0.001
       end if
      call glUniform3fv(uniloc,1,c_loc(loc))
-    else
+    else                                  !0b10 is left/right/up/down for camera angles
      np0=0.001
      if(iand(flags(i),b'0100')==0) then
       np0=-0.001
@@ -364,8 +371,8 @@ program renderer
      end if
     end if
    end do
-  call glClear(int(z'4000'))
-  call glDrawElements(int(z'1'),24,int(z'1401'),0)
+  call glClear(int(z'4000'))                          !0x4000 is GL_COLOR_BUFFER_BIT
+  call glDrawElements(int(z'0001'),24,int(z'1401'),0) !0x0001 GL_LINES. 0x1401 is GL_UNSIGNED_CHAR
   call glfwSwapBuffers(window)
   call glfwPollEvents
   end do
