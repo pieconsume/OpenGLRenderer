@@ -46,55 +46,57 @@
  extern void   glViewport(uint x, uint y, uint width, uint height);
  extern uint   glGetError(void);
 
-//A bit ugly but I decided this was easier than loading from files
-const char* vertshaderstr = "#version 450\nlayout (location = 0) in vec3 pos;uniform vec2 res;uniform vec3 loc;uniform vec2 cam;void main() {gl_Position = vec4(pos, 1.0);gl_Position.xyz -= loc;float z = gl_Position.z;gl_Position.z = gl_Position.z * cos(cam.y) - gl_Position.x * sin(cam.y);gl_Position.x = z * sin(cam.y)+gl_Position.x * cos(cam.y);float y = gl_Position.y;gl_Position.y = gl_Position.y * cos(cam.x) - gl_Position.z * sin(cam.x);gl_Position.z = y * sin(cam.x) + gl_Position.z * cos(cam.x);gl_Position.x *=  (res[1]/res[0]);gl_Position.w = gl_Position.z;}";
-const char* fragshaderstr = "#version 450\nout vec4 color;void main() {color = vec4(1, 0, 0, 1);}";
-void  resize(), keypress(), done();
-void* window;
-uint  objs[2], vao, program, unires, uniloc, unicam;
-float loc[3], cam[2];
-float vertices[24] = //Vertices of a cube
-{
- -0.5, -0.5, -0.5, 
- -0.5, -0.5, +0.5, 
- +0.5, -0.5, +0.5, 
- +0.5, -0.5, -0.5, 
- -0.5, +0.5, -0.5, 
- -0.5, +0.5, +0.5,
- +0.5, +0.5, +0.5, 
- +0.5, +0.5, -0.5
-};
-char  elements[24] = //Elements for a wireframe cube with GL_LINES
-{
- 0, 1, 
- 1, 2, 
- 2, 3, 
- 3, 0, 
- 4, 5, 
- 5, 6, 
- 6, 7, 
- 7, 4, 
- 0, 4, 
- 1, 5, 
- 2, 6, 
- 3, 7
-};
-char  buffer[256];
-//Instead of doing a massive if-else chain for each key I decided to make it a bit more compact by having flags for each key which modify behavior
-short keys[] = 
-{ 
- 32,  //Space
- 65,  //A
- 68,  //D
- 83,  //S
- 87,  //W
- 262, //Right
- 263, //Left
- 264, //Down
- 265, //Up
- 340  //Left shift
-};
-char  flags[] = { 0b101, 0b00000, 0b01100, 0b11000, 0b10100, 0b1010, 0b1110, 0b0010, 0b0110, 0b001 };
+//Variables
+ //A bit ugly but I decided this was easier than loading from files
+ const char* vertshaderstr = "#version 450\nlayout (location = 0) in vec3 pos;uniform vec2 res;uniform vec3 loc;uniform vec2 cam;void main() {gl_Position = vec4(pos, 1.0);gl_Position.xyz -= loc;float z = gl_Position.z;gl_Position.z = gl_Position.z * cos(cam.y) - gl_Position.x * sin(cam.y);gl_Position.x = z * sin(cam.y)+gl_Position.x * cos(cam.y);float y = gl_Position.y;gl_Position.y = gl_Position.y * cos(cam.x) - gl_Position.z * sin(cam.x);gl_Position.z = y * sin(cam.x) + gl_Position.z * cos(cam.x);gl_Position.x *=  (res[1]/res[0]);gl_Position.w = gl_Position.z;}";
+ const char* fragshaderstr = "#version 450\nout vec4 color;void main() {color = vec4(1, 0, 0, 1);}";
+ void  resize(), keypress(), done();
+ void* window;
+ uint  objs[2], vao, program, unires, uniloc, unicam;
+ float loc[3], cam[2];
+ float vertices[24] = //Vertices of a cube
+ {
+  -0.5, -0.5, -0.5, 
+  -0.5, -0.5, +0.5, 
+  +0.5, -0.5, +0.5, 
+  +0.5, -0.5, -0.5, 
+  -0.5, +0.5, -0.5, 
+  -0.5, +0.5, +0.5,
+  +0.5, +0.5, +0.5, 
+  +0.5, +0.5, -0.5
+ };
+ char  elements[24] = //Elements for a wireframe cube with GL_LINES
+ {
+  0, 1, 
+  1, 2, 
+  2, 3, 
+  3, 0, 
+  4, 5, 
+  5, 6, 
+  6, 7, 
+  7, 4, 
+  0, 4, 
+  1, 5, 
+  2, 6, 
+  3, 7
+ };
+ char  buffer[256];
+ //Instead of doing a massive if-else chain for each key I decided to make it a bit more compact by having flags for each key which modify behavior
+ short keys[] = 
+ { 
+  32,  //Space
+  65,  //A
+  68,  //D
+  83,  //S
+  87,  //W
+  262, //Right
+  263, //Left
+  264, //Down
+  265, //Up
+  340  //Left shift
+ };
+ char  flags[] = { 0b101, 0b00000, 0b01100, 0b11000, 0b10100, 0b1010, 0b1110, 0b0010, 0b0110, 0b001 };
+ 
 int main()
 {
  //GLFW init
@@ -131,6 +133,7 @@ int main()
    glGetShaderInfoLog(vertshader, 0xFF, &size, buffer);
    write(1, buffer, size); //1 is stdout
    glDeleteShader(vertshader);
+   done();
   }
   uint fragshader = glCreateShader(0x8B30);         //0x8B30 is GL_FRAGMENT_SHADER
   glShaderSource(fragshader, 1, &fragshaderstr, 0);
@@ -142,6 +145,7 @@ int main()
    write(1, buffer, size);
    glDeleteShader(vertshader);
    glDeleteShader(fragshader);
+   done();
   }
   program = glCreateProgram();
   glAttachShader(program, vertshader);
@@ -155,6 +159,7 @@ int main()
    glDeleteShader(vertshader);
    glDeleteShader(fragshader);
    glDeleteProgram(program);
+   done();
   }
   glUseProgram(program);
   glDetachShader(program, vertshader);
