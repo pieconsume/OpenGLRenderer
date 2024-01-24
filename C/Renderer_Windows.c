@@ -63,32 +63,8 @@ int main()
   //Buffer init
    int vao;
    int objs[2];
-   float vertices[24] = //Vertices of a cube
-   {
-    -0.5, -0.5, -0.5, 
-    -0.5, -0.5, +0.5, 
-    +0.5, -0.5, +0.5, 
-    +0.5, -0.5, -0.5, 
-    -0.5, +0.5, -0.5, 
-    -0.5, +0.5, +0.5,
-    +0.5, +0.5, +0.5, 
-    +0.5, +0.5, -0.5
-   };
-   char  elements[24] = //Elements for a wireframe cube with GL_LINES
-   {
-    0, 1, 
-    1, 2, 
-    2, 3, 
-    3, 0, 
-    4, 5, 
-    5, 6, 
-    6, 7, 
-    7, 4, 
-    0, 4, 
-    1, 5, 
-    2, 6, 
-    3, 7
-   };
+   float vertices[24] = { -0.5, -0.5, -0.5, -0.5, -0.5, +0.5, +0.5, -0.5, +0.5, +0.5, -0.5, -0.5, -0.5, +0.5, -0.5, -0.5, +0.5, +0.5,+0.5, +0.5, +0.5, +0.5, +0.5, -0.5 }; //Cube vertices
+   char  elements[24] = { 0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7 };                                                                        //Wireframe cube elements
    glGenVertexArrays(1, &vao);
    glGenBuffers(2, objs);
    glBindVertexArray(vao);
