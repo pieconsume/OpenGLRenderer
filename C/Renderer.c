@@ -6,16 +6,15 @@
  extern double sin(double val);
  extern double cos(double val);
  extern int    glfwInit(void);
- extern void   glfwTerminate(void);
  extern void   glfwWindowHint(int hint, int value);
  extern void*  glfwCreateWindow(int width, int height, void* title, void* monitor, void* share);
  extern void   glfwMakeContextCurrent(void* window);
- extern void*  glfwSetWindowSizeCallback(void* window, void* callback);
- extern void*  glfwSetKeyCallback(void* window, void* callback);
  extern void   glfwSwapBuffers(void* window);
  extern void   glfwPollEvents(void);
  extern int    glfwWindowShouldClose(void* window);
+ extern void   glfwGetFramebufferSize(void* window,  int* width, int* height);
  extern int    glfwGetKey(void* window, uint key);
+ extern void   glfwTerminate(void);
  extern void   glGenVertexArrays(uint count, void* arrays);
  extern void   glGenBuffers(uint count, void* buffers);
  extern void   glBindVertexArray(uint array);
@@ -54,64 +53,18 @@
  void* window;
  uint  objs[2], vao, program, unires, uniloc, unicam;
  float loc[3], cam[2];
- float vertices[24] = //Vertices of a cube
- {
-  -0.5, -0.5, -0.5, 
-  -0.5, -0.5, +0.5, 
-  +0.5, -0.5, +0.5, 
-  +0.5, -0.5, -0.5, 
-  -0.5, +0.5, -0.5, 
-  -0.5, +0.5, +0.5,
-  +0.5, +0.5, +0.5, 
-  +0.5, +0.5, -0.5
- };
- char  elements[24] = //Elements for a wireframe cube with GL_LINES
- {
-  0, 1, 
-  1, 2, 
-  2, 3, 
-  3, 0, 
-  4, 5, 
-  5, 6, 
-  6, 7, 
-  7, 4, 
-  0, 4, 
-  1, 5, 
-  2, 6, 
-  3, 7
- };
+ float vertices[24] = { -0.5, -0.5, -0.5, -0.5, -0.5, +0.5, +0.5, -0.5, +0.5, +0.5, -0.5, -0.5, -0.5, +0.5, -0.5, -0.5, +0.5, +0.5,+0.5, +0.5, +0.5, +0.5, +0.5, -0.5 }; //Cube vertices
+ char  elements[24] = { 0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7 };                                                                        //Wireframe cube elements
  char  buffer[256];
- //Instead of doing a massive if-else chain for each key I decided to make it a bit more compact by having flags for each key which modify behavior
- short keys[] = 
- { 
-  32,  //Space
-  65,  //A
-  68,  //D
-  83,  //S
-  87,  //W
-  262, //Right
-  263, //Left
-  264, //Down
-  265, //Up
-  340  //Left shift
- };
- char  flags[] = { 0b101, 0b00000, 0b01100, 0b11000, 0b10100, 0b1010, 0b1110, 0b0010, 0b0110, 0b001 };
  
 int main()
 {
- //GLFW init
-  glfwInit();                                //Required before anything else
-  glfwWindowHint(0x22002, 4);                //0x22002 is GL_VERSION_MAJOR
-  glfwWindowHint(0x22003, 5);                //0x22003 is GL_VERSION_MINOR
-  window = glfwCreateWindow(
-   1600,         //Width
-   900,          //Height
-   "Scumpert!!", //Name
-   0,            //Monitor
-   0);           //Share
+ //Window init
+  glfwInit();                 //Required before anything else
+  glfwWindowHint(0x22002, 4); //0x22002 is GL_VERSION_MAJOR
+  glfwWindowHint(0x22003, 5); //0x22003 is GL_VERSION_MINOR
+  window = glfwCreateWindow(1600, 900, "Scumpert!!", 0, 0);
   glfwMakeContextCurrent(window);
-  glfwSetWindowSizeCallback(window, resize);
-  glfwSetKeyCallback(window, keypress);
  //Buffer init
   glGenVertexArrays(1, &vao);
   glGenBuffers(2, objs);
@@ -126,41 +79,20 @@ int main()
   int result, size;
   uint vertshader = glCreateShader(0x8B31);         //0x8B31 is GL_VERTEX_SHADER
   glShaderSource(vertshader, 1, &vertshaderstr, 0); //Shader, line count, lines, linelengths
-  glCompileShader(vertshader);
+   glCompileShader(vertshader);
   glGetShaderiv(vertshader, 0x8B81, &result);       //0x8B81 is GL_COMPILE_STATUS
-  if(result == 0)
-  {
-   glGetShaderInfoLog(vertshader, 0xFF, &size, buffer);
-   write(1, buffer, size); //1 is stdout
-   glDeleteShader(vertshader);
-   done();
-  }
+  if(result == 0) { glGetShaderInfoLog(vertshader, 0xFF, &size, buffer); write(1, buffer, size); glDeleteShader(vertshader); done(); }
   uint fragshader = glCreateShader(0x8B30);         //0x8B30 is GL_FRAGMENT_SHADER
   glShaderSource(fragshader, 1, &fragshaderstr, 0);
   glCompileShader(fragshader);
   glGetShaderiv(fragshader, 0x8B81, &result);
-  if(result == 0)
-  {
-   glGetShaderInfoLog(fragshader, 0xFF, &size, buffer);
-   write(1, buffer, size);
-   glDeleteShader(vertshader);
-   glDeleteShader(fragshader);
-   done();
-  }
+  if(result == 0) { glGetShaderInfoLog(fragshader, 0xFF, &size, buffer); write(1, buffer, size); glDeleteShader(vertshader); glDeleteShader(fragshader); done(); }
   program = glCreateProgram();
   glAttachShader(program, vertshader);
   glAttachShader(program, fragshader);
   glLinkProgram(program);
   glGetProgramiv(program, 0x8B82, &result); //0x8B82 is GL_LINK_STATUS
-  if(result == 0)
-  {
-   glGetProgramInfoLog(program, 0xFF, &size, buffer);
-   write(1, buffer, size);
-   glDeleteShader(vertshader);
-   glDeleteShader(fragshader);
-   glDeleteProgram(program);
-   done();
-  }
+  if(result == 0) { glGetProgramInfoLog(program, 0xFF, &size, buffer); write(1, buffer, size); glDeleteShader(vertshader); glDeleteShader(fragshader); glDeleteProgram(program); done(); }
   glUseProgram(program);
   glDetachShader(program, vertshader);
   glDetachShader(program, fragshader);
@@ -169,53 +101,28 @@ int main()
   unires = glGetUniformLocation(program, "res");
   uniloc = glGetUniformLocation(program, "loc");
   unicam = glGetUniformLocation(program, "cam");
- //Mainloop
+  int oldwidth = 0, oldheight = 0, width, height;
  while(!glfwWindowShouldClose(window))
  {
-  for(int i = 0;i<10;i++)
-  {
-   if(glfwGetKey(window, keys[i]))
-   {  
-    if((flags[i]&0b11) == 0)      //0b00 is wasd for camera movement
-    {
-     float negpos0 = -0.001;
-     float negpos1 = -0.001;
-     //Directional calculations. sin and cos are used to calculate the correct movement angles
-     if((flags[i]&0b00100) == 0) { negpos0 = +0.001; } //Flags are weird for this one. Should fix this up later.
-     if((flags[i]&0b01000) == 0) { negpos1 = +0.001; }
-     if((flags[i]&0b10000) == 0) { loc[0] -= cos(cam[1]) * negpos0; loc[2] -= sin(cam[1]) * negpos1; } 
-     else { loc[0] += sin(cam[1]) * negpos0; loc[2] += cos(cam[1]) * negpos1; }
-     glUniform3fv(uniloc, 1, loc);
-    }
-    else if((flags[i]&0b10) == 0) //0b01 is shift/space for up/down
-    {
-     if(keys[i] == 340) { loc[1] -= 0.001; } else { loc[1] += 0.001; }
-     glUniform3fv(uniloc, 1, loc);
-    }
-    else                          //0b10 is left/right/up/down for camera angles
-    {
-     float negpos = +0.001;
-     if((flags[i]&0b0100) == 0) { negpos = -0.001; }                             //Negpos flag
-     if((flags[i]&0b1000) == 0) { cam[0] += negpos; } else { cam[1] += negpos; } //X/Y flag
-     glUniform2fv(unicam, 1, cam);
-    }
-   }
-  }
+  glfwGetFramebufferSize(window, &width, &height);
+  if (oldwidth != width || oldheight != height) { oldwidth = width; oldheight = height;  glViewport(0, 0, width, height); glUniform2f(unires, (float)width, (float)height); }
+  if (glfwGetKey(window, 256)) { done(); }
+  if (glfwGetKey(window,  32)) { loc[1] += 0.01; glUniform3fv(uniloc, 1, loc); }                                               //Space
+  if (glfwGetKey(window,  65)) { loc[0] += cos(cam[1]) * -0.01; loc[2] += sin(cam[1]) * -0.01; glUniform3fv(uniloc, 1, loc); } //A
+  if (glfwGetKey(window,  68)) { loc[0] += cos(cam[1]) * +0.01; loc[2] += sin(cam[1]) * +0.01; glUniform3fv(uniloc, 1, loc); } //D
+  if (glfwGetKey(window,  83)) { loc[0] += sin(cam[1]) * +0.01; loc[2] += cos(cam[1]) * -0.01; glUniform3fv(uniloc, 1, loc); } //S
+  if (glfwGetKey(window,  87)) { loc[0] += sin(cam[1]) * -0.01; loc[2] += cos(cam[1]) * +0.01; glUniform3fv(uniloc, 1, loc); } //W
+  if (glfwGetKey(window, 262)) { cam[1] -= 0.01; glUniform2fv(unicam, 1, cam); }                                               //Right
+  if (glfwGetKey(window, 263)) { cam[1] += 0.01; glUniform2fv(unicam, 1, cam); }                                               //Left
+  if (glfwGetKey(window, 264)) { cam[0] -= 0.01; glUniform2fv(unicam, 1, cam); }                                               //Down
+  if (glfwGetKey(window, 265)) { cam[0] += 0.01; glUniform2fv(unicam, 1, cam); }                                               //Up
+  if (glfwGetKey(window, 340)) { loc[1] -= 0.01; glUniform3fv(uniloc, 1, loc); }                                               //LShift
   glClear(0x4000);                       //0x4000 is GL_COLOR_BUFFER_BIT
   glDrawElements(0x0001, 24, 0x1401, 0); //0x0001 is GL_LINES, 0x1401 is GL_UNSIGNED_BYTE
   glfwSwapBuffers(window);
   glfwPollEvents();
  }
  done();
-}
-void resize(void* win, int width, int height)
-{
- glViewport(0, 0, width, height);
- glUniform2f(unires, (float)width, (float)height);
-}
-void keypress(void* win, int key, int scancode, int action, int mods)
-{
- if(key == 256) {done();} //256 is escape
 }
 void done()
 {
