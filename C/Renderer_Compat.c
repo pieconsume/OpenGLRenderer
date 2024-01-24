@@ -128,7 +128,7 @@ int main()
   glDetachShader(program, fragshader);
   glDeleteShader(vertshader);
   glDeleteShader(fragshader);
-  float loc[3], cam[2];
+  float loc[3] = { 0.0, 0.0, 0.0 }, cam[2] = { 0.0, 0.0 };
   int unires = glGetUniformLocation(program, "res");
   int uniloc = glGetUniformLocation(program, "loc");
   int unicam = glGetUniformLocation(program, "cam");
