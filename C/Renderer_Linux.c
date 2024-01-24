@@ -50,8 +50,6 @@ int main()
  char  buffer[256];
  //Window init
   glfwInit();                 //Required before anything else
-  glfwWindowHint(0x22002, 4); //0x22002 is GL_VERSION_MAJOR
-  glfwWindowHint(0x22003, 5); //0x22003 is GL_VERSION_MINOR
   void* window = glfwCreateWindow(1600, 900, "Scumpert!!", 0, 0);
   glfwMakeContextCurrent(window);
  //Buffer init
@@ -69,8 +67,8 @@ int main()
   glVertexAttribPointer(0, 3, 0x1406, 0, 12, 0);  //Index 0, 3 elements, 0x1406 is float, don't normalize, entry size of 12 bytes, offset of 0
   glEnableVertexAttribArray(0);
  //Shader init
-  char* vertshaderstr = "#version 450\nlayout (location = 0) in vec3 pos;uniform vec2 res;uniform vec3 loc;uniform vec2 cam;void main() {gl_Position = vec4(pos, 1.0);gl_Position.xyz -= loc;float z = gl_Position.z;gl_Position.z = gl_Position.z * cos(cam.y) - gl_Position.x * sin(cam.y);gl_Position.x = z * sin(cam.y)+gl_Position.x * cos(cam.y);float y = gl_Position.y;gl_Position.y = gl_Position.y * cos(cam.x) - gl_Position.z * sin(cam.x);gl_Position.z = y * sin(cam.x) + gl_Position.z * cos(cam.x);gl_Position.x *=  (res[1]/res[0]);gl_Position.w = gl_Position.z;}";
-  char* fragshaderstr = "#version 450\nout vec4 color;void main() {color = vec4(1, 0, 0, 1);}";
+  char* vertshaderstr = "#version 420\nlayout (location = 0) in vec3 pos;uniform vec2 res;uniform vec3 loc;uniform vec2 cam;void main() {gl_Position = vec4(pos, 1.0);gl_Position.xyz -= loc;float z = gl_Position.z;gl_Position.z = gl_Position.z * cos(cam.y) - gl_Position.x * sin(cam.y);gl_Position.x = z * sin(cam.y)+gl_Position.x * cos(cam.y);float y = gl_Position.y;gl_Position.y = gl_Position.y * cos(cam.x) - gl_Position.z * sin(cam.x);gl_Position.z = y * sin(cam.x) + gl_Position.z * cos(cam.x);gl_Position.x *=  (res[1]/res[0]);gl_Position.w = gl_Position.z;}";
+  char* fragshaderstr = "#version 420\nout vec4 color;void main() {color = vec4(1, 0, 0, 1);}";
   int result, size;
   uint vertshader = glCreateShader(0x8B31);         //0x8B31 is GL_VERTEX_SHADER
   glShaderSource(vertshader, 1, &vertshaderstr, 0); //Shader, line count, lines, linelengths
