@@ -122,7 +122,5 @@ int main()
 }
 void done()
 {
- glDeleteProgram(program);
- glfwTerminate();
  exit(0);
 }
