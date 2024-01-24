@@ -104,10 +104,10 @@ int main()
   if (oldwidth != width || oldheight != height) { oldwidth = width; oldheight = height;  glViewport(0, 0, width, height); glUniform2f(unires, (float)width, (float)height); }
   if (glfwGetKey(window, 256)) { done(); }
   if (glfwGetKey(window,  32)) { loc[1] += 0.01; glUniform3fv(uniloc, 1, loc); }                                               //Space
-  if (glfwGetKey(window,  65)) { loc[0] += cos(cam[1]) * -0.01; loc[2] += sin(cam[1]) * -0.01; glUniform3fv(uniloc, 1, loc); } //A
-  if (glfwGetKey(window,  68)) { loc[0] += cos(cam[1]) * +0.01; loc[2] += sin(cam[1]) * +0.01; glUniform3fv(uniloc, 1, loc); } //D
-  if (glfwGetKey(window,  83)) { loc[0] += sin(cam[1]) * +0.01; loc[2] += cos(cam[1]) * -0.01; glUniform3fv(uniloc, 1, loc); } //S
-  if (glfwGetKey(window,  87)) { loc[0] += sin(cam[1]) * -0.01; loc[2] += cos(cam[1]) * +0.01; glUniform3fv(uniloc, 1, loc); } //W
+  if (glfwGetKey(window,  65)) { loc[0] += cosf(cam[1]) * -0.01; loc[2] += sinf(cam[1]) * -0.01; glUniform3fv(uniloc, 1, loc); } //A
+  if (glfwGetKey(window,  68)) { loc[0] += cosf(cam[1]) * +0.01; loc[2] += sinf(cam[1]) * +0.01; glUniform3fv(uniloc, 1, loc); } //D
+  if (glfwGetKey(window,  83)) { loc[0] += sinf(cam[1]) * +0.01; loc[2] += cosf(cam[1]) * -0.01; glUniform3fv(uniloc, 1, loc); } //S
+  if (glfwGetKey(window,  87)) { loc[0] += sinf(cam[1]) * -0.01; loc[2] += cosf(cam[1]) * +0.01; glUniform3fv(uniloc, 1, loc); } //W
   if (glfwGetKey(window, 262)) { cam[1] -= 0.01; glUniform2fv(unicam, 1, cam); }                                               //Right
   if (glfwGetKey(window, 263)) { cam[1] += 0.01; glUniform2fv(unicam, 1, cam); }                                               //Left
   if (glfwGetKey(window, 264)) { cam[0] -= 0.01; glUniform2fv(unicam, 1, cam); }                                               //Down
