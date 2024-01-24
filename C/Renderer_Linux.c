@@ -1,5 +1,4 @@
-//Externs -lGL -lglfw -lm
- //Header files could be included instead but this lets you easily view function prototypes you use
+//Defs
  #define uint unsigned int
  extern int    write(int fd, char* buffer, int count);
  extern void   exit(int error);
@@ -46,7 +45,6 @@
  extern uint   glGetError(void);
 
 //Variables
- //A bit ugly but I decided this was easier than loading from files
  const char* vertshaderstr = "#version 450\nlayout (location = 0) in vec3 pos;uniform vec2 res;uniform vec3 loc;uniform vec2 cam;void main() {gl_Position = vec4(pos, 1.0);gl_Position.xyz -= loc;float z = gl_Position.z;gl_Position.z = gl_Position.z * cos(cam.y) - gl_Position.x * sin(cam.y);gl_Position.x = z * sin(cam.y)+gl_Position.x * cos(cam.y);float y = gl_Position.y;gl_Position.y = gl_Position.y * cos(cam.x) - gl_Position.z * sin(cam.x);gl_Position.z = y * sin(cam.x) + gl_Position.z * cos(cam.x);gl_Position.x *=  (res[1]/res[0]);gl_Position.w = gl_Position.z;}";
  const char* fragshaderstr = "#version 450\nout vec4 color;void main() {color = vec4(1, 0, 0, 1);}";
  void  resize(), keypress(), done();
