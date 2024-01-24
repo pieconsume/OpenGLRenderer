@@ -1,0 +1,23 @@
+#version 450
+
+layout (location=0) in vec3 pos;
+uniform vec2 res;
+uniform vec3 loc;
+uniform vec2 cam;
+
+void main()
+ {
+  gl_Position = vec4(pos,1.0);
+
+  gl_Position.xyz -= loc;
+
+  float z = gl_Position.z;
+  gl_Position.z = gl_Position.z * cos(cam.y) - gl_Position.x * sin(cam.y);
+  gl_Position.x = z * sin(cam.y)+gl_Position.x * cos(cam.y);
+  float y = gl_Position.y;
+  gl_Position.y = gl_Position.y * cos(cam.x) - gl_Position.z * sin(cam.x);
+  gl_Position.z = y * sin(cam.x) + gl_Position.z * cos(cam.x);
+  
+  gl_Position.x *= (res[1]/res[0]);
+  gl_Position.w = gl_Position.z;
+}

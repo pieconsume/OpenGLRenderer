@@ -1,0 +1,2 @@
+[build]
+rustflags = "-C prefer-dynamic -C link-arg=-fuse-ld=lld"

@@ -1,19 +1,19 @@
 I prefer using the llvm linker because it create smaller files
 
-ASM     - nasm     file.asm -f bin -o file
-C/C++   - gcc      gcc Renderer.c -fuse-ld=lld -lglfw -lGL -lm -o Builds/Renderer
-C#      - mcs      file.cs -out:file | mono file
-Go      - go       run file.go
-Python  - python   file.py
-R       - Rscript  file.r
-Rust    - rustc    file.ru -C prefer-dynamic -C link-arg=-fuse-ld=lld -o file
-Java    - javac    file.java | java file
-Zig     - zig      run file.zig
-Fortran - gfortran file.f90 -fuse-ld=lld -lglfw -lGL -o file
-Haskell - ghc      file.hs -dynamic -o file
-Lua     - lua      file.lua
-Pascal  - fpc      file.p -ofile
-Perl    - perl     file.perl
-Ruby    - ruby     file.ruby
-Scala   - scalac   file.scala | scala file
-Js      - node     file.js
+ASM     - nasm     Renderer.asm -f bin -o Renderer
+C/C++   - gcc      gcc Renderer.c -fuse-ld=lld -lglfw -lGL -lm -o Renderer
+C#      - mcs      Renderer.cs -out:Renderer | mono Renderer
+Go      - go       run Renderer.go
+Python  - python   Renderer.py
+R       - Rscript  Renderer.r
+Rust    - cargo build
+Java    - javac    Renderer.java | java Renderer
+Zig     - zig      run Renderer.zig
+Fortran - gfortran Renderer.f90 -fuse-ld=lld -lglfw -lGL -o Renderer
+Haskell - ghc      Renderer.hs -dynamic -o Renderer
+Lua     - lua      Renderer.lua
+Pascal  - fpc      Renderer.p -oRenderer
+Perl    - perl     Renderer.perl
+Ruby    - ruby     Renderer.ruby
+Scala   - scalac   Renderer.scala | scala Renderer
+Js      - node     Renderer.js
